@@ -76,3 +76,26 @@ def post_tickets(request, pk):
             "message": "ticket created successfully"
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def earn_points(request):
+    user_id = request.data['user']
+    points_to_give = request.data['points']
+
+
+    try:
+        user = CustomUser.objects.get(id=user_id)
+    except CustomUser.DoesNotExist:
+        return Response({
+            'error': 'User not found'
+        },  status=404)
+    
+    user.points += points_to_give
+    user.save()
+
+    return Response({
+        'message': 'Points erned successfuly'
+    })
+
+    
