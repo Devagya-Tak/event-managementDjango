@@ -14,5 +14,5 @@ urlpatterns = [
     path('events/<int:pk>/create/', post_events, name='post_events'),
     path('tickets/<int:pk>/', get_tickets, name='get_tickets'),
     path('tickets/<int:pk>/create/', post_tickets, name='post_tickets'),
-    path('points/earn', earn_points, name='earn_points')
+    path('points/earn/', earn_points, name='earn_points')
 ]

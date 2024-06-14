@@ -64,18 +64,48 @@ def get_tickets(request, pk):
 @api_view(['POST'])
 def post_tickets(request, pk):
     try:
-        user = CustomUser.objects.get(pk=pk)  # Assuming you have a User model
+        # Retrieve the user based on the provided primary key
+        user = CustomUser.objects.get(pk=pk)
     except CustomUser.DoesNotExist:
+        # Return a response if the user does not exist
         return Response({"message": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
+    # Retrieve the event ID from the request data
+    event_id = request.data.get('event')
+    try:
+        # Attempt to retrieve the event based on the provided ID
+        event = Event.objects.get(id=event_id)
+    except Event.DoesNotExist:
+        # Return a response if the event does not exist
+        return Response({'message': 'Event does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Check if the payment method is via points
+    payment_method = request.data.get('payment_method')
+    if payment_method == 'points':
+        # Calculate the points needed based on the ticket price
+        points_needed = event.ticket_price * 20
+        if user.points >= points_needed:
+            # Deduct points from the user's account if they have sufficient points
+            user.points -= points_needed
+            user.save()
+        else:
+            # Return a response if the user has insufficient points
+            return Response({"message": "Insufficient points"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Assign the user ID to the request data
     request.data['user'] = user.id
+    # Initialize the serializer with the request data
     serializer = TicketSerializer(data=request.data)
     if serializer.is_valid():
+        # Save the ticket if the serializer data is valid
         serializer.save()
+        # Return a success response
         return Response({
-            "message": "ticket created successfully"
+            "message": "Ticket created successfully"
         }, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        # Return a response with errors if the serializer data is invalid
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
