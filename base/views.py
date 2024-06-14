@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from rest_framework.decorators  import api_view
+from rest_framework.decorators  import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
 from .models import CustomUser
+from rest_framework.permissions import IsAuthenticated
 
 
 @api_view(['GET'])
@@ -12,7 +13,14 @@ def hello(request):
         "message": "Hello World"
     })
 
+@api_view(['GET'])
+def get_all_events(request):
+    events = Event.objects.all()
+    serializer = EventSerializer(events, many=True)
+    return Response(serializer.data)
+
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def signup(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
@@ -37,6 +45,7 @@ def get_events(request, pk):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def post_events(request, pk):
     request.data['user'] = pk
     serializer = EventSerializer(data=request.data)
@@ -51,6 +60,7 @@ def post_events(request, pk):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_tickets(request, pk):
     user = pk
     tickets = Ticket.objects.filter(user=user)
@@ -62,6 +72,7 @@ def get_tickets(request, pk):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def post_tickets(request, pk):
     try:
         # Retrieve the user based on the provided primary key
@@ -109,6 +120,7 @@ def post_tickets(request, pk):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def earn_points(request):
     user_id = request.data['user']
     points_to_give = request.data['points']
