@@ -93,7 +93,7 @@ WSGI_APPLICATION = 'event_manager.wsgi.application'
 
 
 # Change this depending on your project structure
-dotenv_path = os.path.join(BASE_DIR, 'event_manager', '.env')
+dotenv_path = os.path.join(BASE_DIR, '.env')
 load_dotenv(dotenv_path)
 
 
