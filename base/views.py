@@ -20,7 +20,6 @@ def get_all_events(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def signup(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
